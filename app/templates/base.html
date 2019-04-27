@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% if title %}
+        <title>{{ title }} - TaskManager</title>
+    {% else %}
+        <title>TaskManager</title>
+    {% endif %}
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/uikit.min.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/taskmanager.css') }}">
+
+    <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="{{ url_for('static', filename='icons/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16"
+          href="{{ url_for('static', filename='icons/favicon-16x16.png') }}">
+    <link rel="shortcut icon"
+          href="{{ url_for('static', filename='icons/favicon.ico') }}">
+</head>
+<body>
+<header class="uk-section-primary uk-preserve-color">
+    <nav class="uk-navbar-container">
+        <div class="uk-container uk-container-expand">
+            <div uk-navbar="" class="uk-navbar">
+
+                <div class="uk-navbar-left">
+                    <a class="uk-navbar-item uk-logo"
+                       href="{{ url_for('index') }}">
+                        TaskManager
+                    </a>
+                </div>
+
+                <div class="uk-navbar-left" style="margin-left: 15px">
+                    <ul class="uk-navbar-nav">
+                        {% if not current_user.is_anonymous %}
+                            <a class="uk-navbar-item"
+                               href="{{ url_for('tasks') }}">
+                                Tasks
+                            </a>
+                            {% if current_user.type == 1 %}
+                                <a class="uk-navbar-item"
+                                   href="{{ url_for('assigned_tasks') }}">
+                                    Assigned Tasks
+                                </a>
+                                <a class="uk-navbar-item"
+                                   href="{{ url_for('add_task') }}">
+                                    Add task
+                                </a>
+                                <a class="uk-navbar-item"
+                                   href="{{ url_for('register') }}">
+                                    Register user
+                                </a>
+
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="uk-navbar-right">
+                    <ul class="uk-navbar-nav">
+                        {% if current_user.is_anonymous %}
+                            <a class="uk-navbar-item"
+                               href="{{ url_for('login') }}">
+                                Log in
+                            </a>
+                            <a class="uk-navbar-item"
+                               href="{{ url_for('register') }}">
+                                Sign in
+                            </a>
+                        {% else %}
+                            <a class="uk-navbar-item"
+                               href="{{ url_for('logout') }}">
+                                {{ current_user.login }} - Log out
+                            </a>
+                        {% endif %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="uk-container uk-position-relative uk-margin-top">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="uk-alert-{{ category }}" uk-alert>
+                    <a class="uk-alert-close" uk-close></a>
+                    <p>{{ message }}</p>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>

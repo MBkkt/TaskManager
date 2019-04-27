@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% from '/macros/input.html' import input_text %}
+
+
+{% block content %}
+    <div style="min-height: 700px">
+        <div class="uk-position-center tm-form">
+            <h1>Register</h1>
+            <form method="POST" action="" novalidate>
+
+                {{ form.hidden_tag() }}
+
+                {{ input_text(form.login) }}
+
+                {{ input_text(form.email) }}
+
+                {{ input_text(form.first_name, 64) }}
+
+                {{ input_text(form.last_name, 64) }}
+
+                {{ input_text(form.password) }}
+
+                <div class="uk-margin">
+                    {{ form.type.label }}
+                    {{ form.type(class_='uk-input') }}
+                </div>
+
+                <div class="uk-margin">
+                    {{ form.submit(class_='uk-button uk-button-primary tm-form') }}
+                </div>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}

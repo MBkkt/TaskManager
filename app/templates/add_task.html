@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% from '/macros/input.html' import input_text %}
+
+{% block content %}
+    <div style="min-height: 700px">
+        <div class="uk-position-center tm-form">
+            <h1>Assign task</h1>
+            <form method="POST" action="" novalidate>
+                {{ form.hidden_tag() }}
+
+                {{ input_text(form.title, 64) }}
+
+                {{ input_text(form.description, 4096) }}
+
+                <div class="uk-margin">
+                    {{ form.status.label }}
+                    {{ form.status(class_='uk-input') }}
+                </div>
+
+                {% if current_user.type==1 %}
+                    <div class="uk-margin">
+                        {{ form.users_id(class_='uk-select') }}
+                        {% for error in form.users_id.errors %}
+                            <span style="color: red;">
+                            {{ error }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="uk-margin">
+                    {{ form.submit(class_='uk-button uk-button-primary tm-form') }}
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
