@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <table class="uk-table uk-table-striped">
+        {% if tasks_len %}
+            <thead>
+            <tr>
+                <th>Task</th>
+                <th>Status</th>
+                <th>Spend Time</th>
+                {% if title == 'Tasks' %}
+                    <th>Author</th>
+                {% else %}
+                    <th>Performers</th>
+                {% endif %}
+            </tr>
+            </thead>
+        {% else %}
+            <h3>Still empty</h3>
+        {% endif %}
+        <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td>
+                    <a href={{ url_for('task', task_id=task.id) }}>
+                        {{ task.title }}
+                    </a>
+                </td>
+                <td>{{ task.get_text_status() }}</td>
+                <td>{{ task.timedelta() }}</td>
+                {% if title == 'Tasks' %}
+                    <th>{{ task.get_author().login }}</th>
+                {% else %}
+                    <td>{{ task.get_users_name() }}</td>
+                {% endif %}
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

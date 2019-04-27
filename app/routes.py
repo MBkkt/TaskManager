@@ -1,11 +1,23 @@
-from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request, abort
+from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
-from werkzeug.urls import url_parse
-from app import app, db
-from app.forms import LoginForm, RegistrationForm, AddTask, EditTaskForWorker
+from app import app
 from app.models import User, Task
-from wtforms import Label
+from app.forms import (
+    LoginForm, RegistrationForm, AddTask,
+    EditTaskForPerformer, EditTaskForOwner, ProfileForm
+)
+from functools import wraps
+
+
+def admin_required(func):
+    @wraps(func)
+    def func_new(*args, **kwargs):
+        if current_user.type == 0:
+            return redirect(url_for('index'))
+        else:
+            return func(*args, **kwargs)
+
+    return func_new
 
 
 @app.route('/')
@@ -16,22 +28,24 @@ def index():
     return render_template('index.html', title='Main', stat=stat)
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=('GET', 'POST'))
 def register():
-    form = RegistrationForm(request.form)
-    if request.method == 'POST' and form.validate_on_submit():
+    if current_user.is_authenticated and current_user.type == 0:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
         login_user(User.create(form=form), remember=True)
         next_page = request.args.get('next') or url_for('index')
         return redirect(next_page)
     return render_template('register.html', title='Register', form=form)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=('GET', 'POST'))
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
-    form = LoginForm(request.form)
-    if request.method == 'POST' and form.validate_on_submit():
+    form = LoginForm()
+    if form.validate_on_submit():
         user = User.query.filter_by(login=form.login.data).first()
         next_page = url_for('login')
         if user is None:
@@ -55,48 +69,31 @@ def logout():
 @app.route('/tasks')
 @login_required
 def tasks():
+    tasks = current_user.tasks
+    tasks_len = tasks.count() if tasks else 0
     return render_template(
-        'tasks_for_user.html', title='Tasks', tasks=current_user.tasks
+        'tasks.html', title='Tasks', current_user=current_user,
+        tasks=tasks, tasks_len=tasks_len
     )
 
 
 @app.route('/assigned_tasks')
+@login_required
+@admin_required
 def assigned_tasks():
-    tasks_list = current_user.assign_tasks.all()
     return render_template(
-        'tasks_for_admins.html', title='Assigned tasks', tasks=tasks_list,
-        current_user=current_user
+        'tasks.html', title='Assigned tasks', current_user=current_user,
+        tasks=current_user.assign_tasks.all(),
+        tasks_len=len(current_user.assign_tasks.all())
     )
 
 
-@app.route('/task/<int:task_id>', methods=['GET', 'POST'])
-@login_required
-def task(task_id):
-    task = Task.query.filter_by(id=int(task_id)).first()
-
-    if current_user.id == task.author_id:
-        form = AddTask(request.form)
-        form.status.choices = [('0', 'TO DO'), ('1', 'IN PROGRESS'),
-                               ('2', 'ON REVIEW'), ('3', 'DONE')]
-        form.users_id.choices = [
-            (user.id, user.login) for user in User.query.all()
-        ]
-        if request.method == 'POST' and form.validate_on_submit():
-            task.edit(form)
-            flash('Task is edited', 'primary')
-            return redirect(url_for('assigned_tasks'))
-        elif request.method == 'GET':
-            form.title.data = task.title
-            form.description.data = task.description
-            form.status.data = task.status
-        else:
-            flash('Task does not correct', 'error')
-    else:
-        form = EditTaskForWorker(request.form)
-        if request.method == 'POST' and form.validate_on_submit():
-            task.edit_status(form)
-            flash('Task status is edited', 'primary')
-            return redirect(url_for('tasks'))
+def task_for_performer(task):
+    form = EditTaskForPerformer(request.form)
+    if request.method == 'POST' and form.validate_on_submit():
+        task.edit_status(form)
+        flash('Task status is edited', 'primary')
+        return redirect(url_for('tasks'))
     return render_template(
         'add_task.html', title='Edit task', task=task,
         current_user=current_user,
@@ -104,21 +101,77 @@ def task(task_id):
     )
 
 
-@app.route('/add_task', methods=['GET', 'POST'])
+@app.route('/profile/<int:user_id>', methods=('GET', 'POST'))
 @login_required
-def add_task():
-    if current_user.type == 0:
-        return redirect(url_for('index'))
-    form = AddTask(request.form)
+def profile(user_id):
+    user = User.query.filter_by(id=int(user_id)).first()
+    form = ProfileForm()
+    if form.validate_on_submit():
+        User.edit(user, form)
+        if form.__dict__.get('delete', False) and form.delete.data:
+            flash('Profile is deleted', 'primary')
+        else:
+            flash('Profile is edited', 'primary')
+        return redirect(url_for('login'))
+    elif request.method == 'GET':
+        form.login.data = user.login
+        form.email.data = user.email
+        form.first_name.data = user.first_name
+        form.last_name.data = user.last_name
+        form.type.data = user.type
+    return render_template(
+        'profile.html', title='Profile', form=form,
+        current_user=current_user
+    )
+
+
+def task_for_owner(task):
+    form = EditTaskForOwner(request.form)
     form.users_id.choices = [
         (user.id, user.login) for user in User.query.all()
     ]
-    form.submit.label = Label('submit', 'Add')
-    if request.method == 'POST' and form.validate_on_submit():
+    if form.validate_on_submit():
+        task.edit(task, form)
+        flash('Task is edited', 'primary')
+        return redirect(url_for('assigned_tasks'))
+    elif request.method == 'GET':
+        form.title.data = task.title
+        form.description.data = task.description
+        form.status.data = task.status
+        form.users_id.data = [user.id for user in task.users]
+    else:
+        flash('Task does not correct', 'error')
+    return render_template(
+        'add_task.html', title='Edit task', task=task,
+        current_user=current_user,
+        form=form
+    )
+
+
+@app.route('/task/<int:task_id>', methods=('GET', 'POST'))
+@login_required
+def task(task_id):
+    task = Task.query.filter_by(id=int(task_id)).first()
+    if current_user.id == task.author_id:
+        return task_for_owner(task)
+    else:
+        return task_for_performer(task)
+
+
+@app.route('/add_task', methods=('GET', 'POST'))
+@login_required
+@admin_required
+def add_task():
+    form = AddTask()
+    form.users_id.choices = [
+        (user.id, user.login) for user in User.query.all()
+    ]
+    if form.validate_on_submit():
         task = Task.create(form, current_user.id)
         flash('Task is adding', 'primary')
     else:
         task = {'author_id': current_user.id}
     return render_template(
-        'add_task.html', title='Add task', form=form, task=task
+        'add_task.html', title='Add task', form=form, task=task,
+        current_user=current_user
     )

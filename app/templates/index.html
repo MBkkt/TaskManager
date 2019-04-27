@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>You are logged in as {{ current_user.login }}</h1>
+    <h1>Hello {{ current_user.first_name }} {{ current_user.last_name }}!</h1>
     {% if temp %}
         {{ temp }}
     {% endif %}
@@ -11,11 +11,11 @@
             <div>
                 <div class="uk-card uk-card-default uk-card-hover uk-card-body">
                     <h3 class="uk-card-title">Your tasks</h3>
-                    <p>DONE {{ stat['to']['done'] }}</p>
-                    <p>ON REVIEW {{ stat['to']['on_review'] }}</p>
+                    <p>DONE        {{ stat['to']['done'] }}</p>
+                    <p>ON REVIEW   {{ stat['to']['on_review'] }}</p>
                     <p>IN PROGRESS {{ stat['to']['in_progress'] }}</p>
-                    <p>TO DO {{ stat['to']['to_do'] }}</p>
-                    <p>ALL {{ stat['to']['all'] }}</p>
+                    <p>TO DO       {{ stat['to']['to_do'] }}</p>
+                    <p>ALL         {{ stat['to']['all'] }}</p>
                 </div>
             </div>
 
@@ -23,11 +23,11 @@
             <div>
                 <div class="uk-card uk-card-default uk-card-hover uk-card-body">
                     <h3 class="uk-card-title">Tasks issued by you</h3>
-                    <p>DONE {{ stat['by']['done'] }}</p>
-                    <p>ON REVIEW {{ stat['by']['on_review'] }}</p>
+                    <p>DONE        {{ stat['by']['done'] }}</p>
+                    <p>ON REVIEW   {{ stat['by']['on_review'] }}</p>
                     <p>IN PROGRESS {{ stat['by']['in_progress'] }}</p>
-                    <p>TO DO {{ stat['by']['to_do'] }}</p>
-                    <p>ALL {{ stat['by']['all'] }}</p>
+                    <p>TO DO       {{ stat['by']['to_do'] }}</p>
+                    <p>ALL         {{ stat['by']['all'] }}</p>
                 </div>
             </div>
 
@@ -38,11 +38,11 @@
         <div>
             <div class="uk-card uk-card-default uk-card-hover uk-card-body">
                 <h3 class="uk-card-title">Your tasks</h3>
-                <p>DONE {{ stat['to']['done'] }}</p>
-                <p>ON REVIEW {{ stat['to']['on_review'] }}</p>
+                <p>DONE        {{ stat['to']['done'] }}</p>
+                <p>ON REVIEW   {{ stat['to']['on_review'] }}</p>
                 <p>IN PROGRESS {{ stat['to']['in_progress'] }}</p>
-                <p>TO DO {{ stat['to']['to_do'] }}</p>
-                <p>ALL {{ stat['to']['all'] }}</p>
+                <p>TO DO       {{ stat['to']['to_do'] }}</p>
+                <p>ALL         {{ stat['to']['all'] }}</p>
             </div>
         </div>
     {% endif %}
