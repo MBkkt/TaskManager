@@ -2,25 +2,19 @@
 <html>
 <head>
     {% if title %}
-        <title>{{ title }} - TaskManager</title>
+        <title>{{ title }} - Task Manager</title>
     {% else %}
-        <title>TaskManager</title>
+        <title>Task Manager</title>
     {% endif %}
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/uikit.min.css') }}">
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/taskmanager.css') }}">
+          href="{{ url_for('static', filename='css/task_manager.css') }}">
 
     <script src="{{ url_for('static', filename='js/uikit.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/uikit-icons.min.js') }}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" sizes="32x32"
-          href="{{ url_for('static', filename='icons/favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16"
-          href="{{ url_for('static', filename='icons/favicon-16x16.png') }}">
-    <link rel="shortcut icon"
-          href="{{ url_for('static', filename='icons/favicon.ico') }}">
 </head>
 <body>
 <header class="uk-section-primary uk-preserve-color">
@@ -31,7 +25,7 @@
                 <div class="uk-navbar-left">
                     <a class="uk-navbar-item uk-logo"
                        href="{{ url_for('index') }}">
-                        TaskManager
+                        Task Manager
                     </a>
                 </div>
 
