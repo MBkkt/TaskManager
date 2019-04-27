@@ -18,8 +18,10 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    form = RegistrationForm(request.form)
-    if request.method == 'POST' and form.validate_on_submit():
+    if current_user.is_authenticated and current_user.type == 0:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
         login_user(User.create(form=form), remember=True)
         next_page = request.args.get('next') or url_for('index')
         return redirect(next_page)
@@ -55,8 +57,11 @@ def logout():
 @app.route('/tasks')
 @login_required
 def tasks():
+    tasks = current_user.tasks
+    tasks_len = tasks.count() if tasks else 0
     return render_template(
-        'tasks_for_user.html', title='Tasks', tasks=current_user.tasks
+        'tasks.html', title='Tasks', current_user=current_user,
+        tasks=tasks, tasks_len=tasks_len
     )
 
 
@@ -64,8 +69,9 @@ def tasks():
 def assigned_tasks():
     tasks_list = current_user.assign_tasks.all()
     return render_template(
-        'tasks_for_admins.html', title='Assigned tasks', tasks=tasks_list,
-        current_user=current_user
+        'add_task.html', title='Edit task', task=task,
+        current_user=current_user,
+        form=form
     )
 
 
