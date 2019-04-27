@@ -36,13 +36,13 @@ class LoginForm(FlaskForm):
 
 
 class AddTask(FlaskForm):
-    title = StringField('Task', validators=[DataRequired()])
-    description = StringField('Task', validators=[DataRequired()])
+    title = StringField('Title', validators=[DataRequired()])
+    description = StringField('Description', validators=[DataRequired()])
     status = SelectField(
         'Status', choices=[('0', 'TO DO'), ('1', 'IN PROGRESS')]
     )
     users_id = SelectMultipleField(
-        'User', coerce=int, validators=[DataRequired()]
+        'Performers', coerce=int, validators=[DataRequired()]
     )
     submit = SubmitField('Save')
 

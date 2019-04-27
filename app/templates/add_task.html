@@ -5,7 +5,7 @@
 {% block content %}
     <div style="min-height: 700px">
         <div class="uk-position-center tm-form">
-            <h1>Assign task</h1>
+            <h1>{{ title }}</h1>
             <form method="POST" action="" novalidate>
                 {{ form.hidden_tag() }}
 
@@ -18,8 +18,9 @@
                     {{ form.status(class_='uk-input') }}
                 </div>
 
-                {% if current_user.type==1 %}
+                {% if current_user.id==task.author_id %}
                     <div class="uk-margin">
+                        {{ form.users_id.label }}
                         {{ form.users_id(class_='uk-select') }}
                         {% for error in form.users_id.errors %}
                             <span style="color: red;">

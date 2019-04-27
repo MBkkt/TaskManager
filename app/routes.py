@@ -1,10 +1,11 @@
 from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request, abort
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, AddTask
 from app.models import User, Task
+from wtforms import Label
 
 
 @app.route('/')
@@ -72,17 +73,9 @@ def assigned_tasks():
 @login_required
 def task(task_id):
     task = Task.query.filter_by(id=int(task_id)).first()
-    form = AddTask(request.form)
-    if current_user.type == 0:
-        form.status.choices = [('1', 'IN PROGRESS'), ('2', 'ON REVIEW')]
-        form.title.data = task.title
-        form.description.data = task.description
-        if request.method == 'POST' and form.is_submitted():
-            task.edit_status(form)
-            flash('Task status is edited', 'primary')
-            return redirect(url_for('tasks'))
 
-    elif current_user.type == 1:
+    if current_user.id == task.author_id:
+        form = AddTask(request.form)
         form.status.choices = [('0', 'TO DO'), ('1', 'IN PROGRESS'),
                                ('2', 'ON REVIEW'), ('3', 'DONE')]
         form.users_id.choices = [
@@ -96,8 +89,19 @@ def task(task_id):
             form.title.data = task.title
             form.description.data = task.description
             form.status.data = task.status
+        else:
+            flash('Task does not correct', 'error')
+    else:
+        form = AddTask(request.form)
+        form.status.choices = [('1', 'IN PROGRESS'), ('2', 'ON REVIEW')]
+        form.title.data = task.title
+        form.description.data = task.description
+        if request.method == 'POST' and form.is_submitted():
+            task.edit_status(form)
+            flash('Task status is edited', 'primary')
+            return redirect(url_for('tasks'))
     return render_template(
-        'add_task.html', title='Task', task=task,
+        'add_task.html', title='Edit task', task=task,
         current_user=current_user,
         form=form
     )
@@ -112,10 +116,12 @@ def add_task():
     form.users_id.choices = [
         (user.id, user.login) for user in User.query.all()
     ]
-
+    form.submit.label = Label('submit', 'Add')
     if request.method == 'POST' and form.validate_on_submit():
-        Task.create(form, current_user.id)
-        flash('Task is assigned', 'primary')
+        task = Task.create(form, current_user.id)
+        flash('Task is adding', 'primary')
+    else:
+        task = {'author_id': current_user.id}
     return render_template(
-        'add_task.html', title='Assign task', form=form
+        'add_task.html', title='Add task', form=form, task=task
     )
