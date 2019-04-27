@@ -28,6 +28,18 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Enter another email')
 
 
+class ProfileForm(FlaskForm):
+    login = StringField('Login', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired()])
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    type = SelectField(
+        'Account type', coerce=int, choices=[(0, 'Worker'), (1, 'Admin')]
+    )
+    delete = BooleanField('Delete')
+    submit = SubmitField('Save')
+
+
 class LoginForm(FlaskForm):
     login = StringField('Login', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -45,7 +57,7 @@ class EditTaskForPerformer(FlaskForm):
 
 class EditTaskForOwner(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
-    description = StringField('Description', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
     status = SelectField(
         'Status', coerce=int, choices=[
             (0, 'TO DO'), (1, 'IN PROGRESS'), (2, 'ON REVIEW'),
@@ -55,7 +67,18 @@ class EditTaskForOwner(FlaskForm):
     users_id = SelectMultipleField(
         'Performers', coerce=int, validators=[DataRequired()]
     )
+    delete = BooleanField('Delete')
     submit = SubmitField('Save')
+
+
+class AddTask(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+
+    users_id = SelectMultipleField(
+        'Performers', coerce=int, validators=[DataRequired()]
+    )
+    submit = SubmitField('Add')
 
     def validate_title(self, title):
         task = Task.query.filter_by(title=self.title.data).first()

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% from '/macros/input.html' import input_text %}
+{% from '/macros/error.html' import print_error %}
+
+
+{% block content %}
+    <div style="min-height: 800px">
+        <div class="uk-position-center tm-form">
+            <h1>Profile</h1>
+            <form method="POST" action="" novalidate>
+
+                {{ form.hidden_tag() }}
+
+                {{ input_text(form.login) }}
+
+                {{ input_text(form.email) }}
+
+                {{ input_text(form.first_name) }}
+
+                {{ input_text(form.last_name) }}
+
+                <div class="uk-margin">
+                    <h4>{{ form.type.label }}</h4>
+                    {{ form.type(class_='uk-input') }}
+                    {{ print_error(form.type) }}
+                </div>
+
+                <div class="uk-margin">
+                    <label>
+                        <h4>{{ form.delete(class_='uk-checkbox') }} {{ form.delete.label }}</h4>
+                    </label>
+                </div>
+
+                <div class="uk-margin">
+                    {{ form.submit(class_='uk-button uk-button-primary tm-form') }}
+                    {{ print_error(form.submit) }}
+                </div>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}

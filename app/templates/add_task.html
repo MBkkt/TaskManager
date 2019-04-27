@@ -4,7 +4,7 @@
 {% from '/macros/error.html' import print_error %}
 
 {% block content %}
-    <div style="min-height: 700px">
+    <div style="min-height: 900px">
         <div class="uk-position-center tm-form">
             <h1>{{ title }}</h1>
             <form method="POST" action="" novalidate>
@@ -12,26 +12,46 @@
 
                 {% if current_user.id==task.author_id %}
 
-                    {{ input_text(form.title, 64) }}
+                    {{ input_text(form.title) }}
 
-                    {{ input_text(form.description, 4096) }}
+                    <div class="uk-margin">
+                        <div class="uk-inline">
+                            <h4>{{ form.description.label }}</h4>
+                            {{ form.description(rows='10',cols='47') }}
+                        </div>
+                        {{ print_error(form.description) }}
+                    </div>
 
                     <div class="uk-margin">
                         <h4>{{ form.users_id.label }}</h4>
                         {{ form.users_id(class_='uk-select') }}
                         {{ print_error(form.users_id) }}
                     </div>
+
                 {% else %}
                     <h4>Title</h4>
                     <p>{{ task.title }}</p>
                     <h4>Description</h4>
-                    <p>{{ task.description }}</p>
+                    <p><textarea
+                            rows="10"
+                            cols="47">{{ task.description }}</textarea>
+                    </p>
                 {% endif %}
-                <div class="uk-margin">
-                    <h4>{{ form.status.label }}</h4>
-                    {{ form.status(class_='uk-input') }}
-                    {{ print_error(form.status) }}
-                </div>
+
+                {% if form.__dict__.get('status') != None %}
+                    <div class="uk-margin">
+                        <h4>{{ form.status.label }}</h4>
+                        {{ form.status(class_='uk-input') }}
+                        {{ print_error(form.status) }}
+                    </div>
+                {% endif %}
+                {% if form.__dict__.get('delete') != None %}
+                    <div class="uk-margin">
+                        <label>
+                            <h4>{{ form.delete(class_='uk-checkbox') }} {{ form.delete.label }}</h4>
+                        </label>
+                    </div>
+                {% endif %}
                 <div class="uk-margin">
                     {{ form.submit(class_='uk-button uk-button-primary tm-form') }}
                     {{ print_error(form.submit) }}

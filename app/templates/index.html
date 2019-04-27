@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>You are logged in as {{ current_user.login }}</h1>
+    <h1>Hello {{ current_user.first_name }} {{ current_user.last_name }}!</h1>
     {% if temp %}
         {{ temp }}
     {% endif %}
