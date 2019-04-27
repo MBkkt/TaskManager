@@ -158,7 +158,7 @@ class Task(db.Model):
         if self.status == 0:
             return 'TO DO'
         elif self.status == 1:
-            return 'IN PROCESS'
+            return 'IN PROGRESS'
         elif self.status == 2:
             return 'ON REVIEW'
         else:
