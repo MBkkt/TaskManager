@@ -68,7 +68,7 @@ class User(UserMixin, db.Model):
                 'in_progress': sum(i.status == 1 for i in by),
                 'on_review': sum(i.status == 2 for i in by),
                 'done': sum(i.status == 3 for i in by),
-            }
+            },
         }
 
     def doing(self, task_id, is_=False):
