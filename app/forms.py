@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import (
     StringField, PasswordField, BooleanField, SubmitField, SelectField,
-    SelectMultipleField,
+    SelectMultipleField, TextAreaField
 )
 from wtforms.validators import ValidationError, DataRequired
 from app.models import User, Task
@@ -13,8 +13,8 @@ class RegistrationForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    type = SelectField('Account type',
-                       choices=[('0', 'Worker'), ('1', 'Admin')])
+    type = SelectField('Account type', coerce=int,
+                       choices=[(0, 'Worker'), (1, 'Admin')])
     submit = SubmitField('Sign in')
 
     def validate_login(self, login):
@@ -35,19 +35,22 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Log in')
 
 
-class EditTaskForWorker(FlaskForm):
+class EditTaskForPerformer(FlaskForm):
     status = SelectField(
-        'Status',
-        choices=[('0', 'TO DO'), ('1', 'IN PROGRESS'), ('2', 'ON REVIEW')]
+        'Status', coerce=int,
+        choices=[(0, 'TO DO'), (1, 'IN PROGRESS'), (2, 'ON REVIEW')]
     )
     submit = SubmitField('Save')
 
 
-class AddTask(FlaskForm):
+class EditTaskForOwner(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
     status = SelectField(
-        'Status', choices=[('0', 'TO DO'), ('1', 'IN PROGRESS')]
+        'Status', coerce=int, choices=[
+            (0, 'TO DO'), (1, 'IN PROGRESS'), (2, 'ON REVIEW'),
+            (3, 'DONE'),
+        ]
     )
     users_id = SelectMultipleField(
         'Performers', coerce=int, validators=[DataRequired()]

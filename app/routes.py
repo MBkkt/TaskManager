@@ -1,9 +1,6 @@
-from datetime import datetime
-from flask import render_template, flash, redirect, url_for, request, abort
+from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
-from werkzeug.urls import url_parse
-from app import app, db
-from app.forms import LoginForm, RegistrationForm, AddTask, EditTaskForWorker
+from app import app
 from app.models import User, Task
 from wtforms import Label
 
@@ -16,7 +13,7 @@ def index():
     return render_template('index.html', title='Main', stat=stat)
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=('GET', 'POST'))
 def register():
     if current_user.is_authenticated and current_user.type == 0:
         return redirect(url_for('index'))
@@ -28,7 +25,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=('GET', 'POST'))
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -75,7 +72,7 @@ def assigned_tasks():
     )
 
 
-@app.route('/task/<int:task_id>', methods=['GET', 'POST'])
+@app.route('/profile/<int:user_id>', methods=('GET', 'POST'))
 @login_required
 def task(task_id):
     task = Task.query.filter_by(id=int(task_id)).first()
@@ -110,7 +107,7 @@ def task(task_id):
     )
 
 
-@app.route('/add_task', methods=['GET', 'POST'])
+@app.route('/task/<int:task_id>', methods=('GET', 'POST'))
 @login_required
 def add_task():
     if current_user.type == 0:
