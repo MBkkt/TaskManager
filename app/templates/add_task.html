@@ -10,24 +10,28 @@
             <form method="POST" action="" novalidate>
                 {{ form.hidden_tag() }}
 
-                {{ input_text(form.title, 64) }}
-
-                {{ input_text(form.description, 4096) }}
-
-                <div class="uk-margin">
-                    {{ form.status.label }}
-                    {{ form.status(class_='uk-input') }}
-                    {{ print_error(form.status) }}
-                </div>
-
                 {% if current_user.id==task.author_id %}
+
+                    {{ input_text(form.title, 64) }}
+
+                    {{ input_text(form.description, 4096) }}
+
                     <div class="uk-margin">
-                        {{ form.users_id.label }}
+                        <h4>{{ form.users_id.label }}</h4>
                         {{ form.users_id(class_='uk-select') }}
                         {{ print_error(form.users_id) }}
                     </div>
+                {% else %}
+                    <h4>Title</h4>
+                    <p>{{ task.title }}</p>
+                    <h4>Description</h4>
+                    <p>{{ task.description }}</p>
                 {% endif %}
-
+                <div class="uk-margin">
+                    <h4>{{ form.status.label }}</h4>
+                    {{ form.status(class_='uk-input') }}
+                    {{ print_error(form.status) }}
+                </div>
                 <div class="uk-margin">
                     {{ form.submit(class_='uk-button uk-button-primary tm-form') }}
                     {{ print_error(form.submit) }}

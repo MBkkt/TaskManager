@@ -35,6 +35,14 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Log in')
 
 
+class EditTaskForWorker(FlaskForm):
+    status = SelectField(
+        'Status',
+        choices=[('0', 'TO DO'), ('1', 'IN PROGRESS'), ('2', 'ON REVIEW')]
+    )
+    submit = SubmitField('Save')
+
+
 class AddTask(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])

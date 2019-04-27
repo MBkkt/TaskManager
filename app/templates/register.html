@@ -5,7 +5,7 @@
 
 
 {% block content %}
-    <div style="min-height: 700px">
+    <div style="min-height: 800px">
         <div class="uk-position-center tm-form">
             <h1>Register</h1>
             <form method="POST" action="" novalidate>
@@ -23,7 +23,7 @@
                 {{ input_text(form.password) }}
 
                 <div class="uk-margin">
-                    {{ form.type.label }}
+                    <h4>{{ form.type.label }}</h4>
                     {{ form.type(class_='uk-input') }}
                     {{ print_error(form.type) }}
                 </div>

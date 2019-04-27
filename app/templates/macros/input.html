@@ -1,7 +1,7 @@
 {% macro input_text(name, size_=32) -%}
     <div class="uk-margin">
         <div class="uk-inline">
-            {{ name.label }}
+            <h4>{{ name.label }}</h4>
             {{ name(class_='uk-input', size=size_) }}
         </div>
         {% for error in name.errors %}
