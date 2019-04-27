@@ -1,7 +1,7 @@
 from app import db, login
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import timedelta, datetime
+from datetime import datetime
 
 users_tasks = db.Table(
     'users_tasks',
@@ -20,6 +20,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(256))
     tasks = db.relationship(
         'Task', secondary=users_tasks, backref=db.backref('users'),
+        lazy='dynamic'
     )
     assign_tasks = db.relationship(
         'Task',
@@ -48,6 +49,20 @@ class User(UserMixin, db.Model):
         db.session.commit()
         return user
 
+    @staticmethod
+    def edit(user, form):
+        if form.__dict__.get('delete', False) and form.delete.data:
+            for task in user.assign_tasks:
+                db.session.delete(task)
+            db.session.delete(user)
+        else:
+            user.login = form.login.data
+            user.email = form.email.data
+            user.first_name = form.first_name.data
+            user.last_name = form.last_name.data
+            user.type = form.type.data
+        db.session.commit()
+
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
@@ -56,7 +71,7 @@ class User(UserMixin, db.Model):
         by = self.assign_tasks.all()
         return {
             'to': {
-                'all': len(to),
+                'all': to.count(),
                 'to_do': sum(i.status == 0 for i in to),
                 'in_progress': sum(i.status == 1 for i in to),
                 'on_review': sum(i.status == 2 for i in to),
@@ -70,20 +85,6 @@ class User(UserMixin, db.Model):
                 'done': sum(i.status == 3 for i in by),
             },
         }
-
-    def doing(self, task_id, is_=False):
-        obj = db.session.query(users_tasks).filter(user_id=self.id,
-                                                   task_id=task_id).first()
-        obj.is_doing = is_
-        obj.last_time = datetime.now()
-        db.session.commit()
-
-    def time_task(self, task_id):
-        obj = db.session.query(users_tasks).filter(user_id=self.id,
-                                                   task_id=task_id).first()
-        if obj.is_doing:
-            obj.time += (datetime.now() - obj.last_time)
-        db.session.commit()
 
 
 @login.user_loader
@@ -109,7 +110,6 @@ class Task(db.Model):
             title=form.title.data,
             description=form.description.data,
             author_id=author_id,
-            status=int(form.status.data),
             started=datetime.utcnow(),
         )
         for user_id in form.users_id.data:
@@ -119,12 +119,27 @@ class Task(db.Model):
         db.session.commit()
         return task
 
-    def edit(self, form):
-        self.title = form.title.data
-        self.description = form.description.data
-        self.status = int(form.status.data)
-        if self.status == 3:
-            self.finished = datetime.utcnow()
+    @staticmethod
+    def edit(task, form):
+        if form.__dict__.get('delete', False) and form.delete.data:
+            db.session.delete(task)
+        else:
+            task.title = form.title.data
+            task.description = form.description.data
+
+            if task.status != 3 == int(form.status.data):
+                task.finished = datetime.utcnow()
+            task.status = int(form.status.data)
+
+            users_id = {user.id for user in task.users}
+            for user_id in form.users_id.data:
+                if user_id not in users_id:
+                    task.users.append(User.query.get(user_id))
+
+            new_users_id = set(form.users_id.data)
+            for user in task.users:
+                if user.id not in new_users_id:
+                    task.users.remove(user)
         db.session.commit()
 
     def edit_status(self, form):
@@ -134,10 +149,20 @@ class Task(db.Model):
         db.session.commit()
 
     def timedelta(self):
-        if self.finished:
+        if self.finished and self.status == 3:
             return self.finished - self.started
         else:
             return datetime.utcnow() - self.started
+
+    def get_text_status(self):
+        if self.status == 0:
+            return 'TO DO'
+        elif self.status == 1:
+            return 'IN PROCESS'
+        elif self.status == 2:
+            return 'ON REVIEW'
+        else:
+            return 'DONE'
 
     def get_author(self):
         return User.query.get(self.author_id)

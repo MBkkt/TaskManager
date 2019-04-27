@@ -1,8 +1,8 @@
-{% macro input_text(name, size_=32) -%}
+{% macro input_text(name, max_l=32, max_s=47) -%}
     <div class="uk-margin">
         <div class="uk-inline">
             <h4>{{ name.label }}</h4>
-            {{ name(class_='uk-input', size=size_) }}
+            {{ name(class_='uk-input', max_length=max_l, size=max_s) }}
         </div>
         {% for error in name.errors %}
             <span style="color: red;">
