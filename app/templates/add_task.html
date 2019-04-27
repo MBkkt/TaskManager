@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% from '/macros/input.html' import input_text %}
+{% from '/macros/error.html' import print_error %}
 
 {% block content %}
     <div style="min-height: 700px">
@@ -16,22 +17,20 @@
                 <div class="uk-margin">
                     {{ form.status.label }}
                     {{ form.status(class_='uk-input') }}
+                    {{ print_error(form.status) }}
                 </div>
 
                 {% if current_user.id==task.author_id %}
                     <div class="uk-margin">
                         {{ form.users_id.label }}
                         {{ form.users_id(class_='uk-select') }}
-                        {% for error in form.users_id.errors %}
-                            <span style="color: red;">
-                            {{ error }}
-                        </span>
-                        {% endfor %}
+                        {{ print_error(form.users_id) }}
                     </div>
                 {% endif %}
 
                 <div class="uk-margin">
                     {{ form.submit(class_='uk-button uk-button-primary tm-form') }}
+                    {{ print_error(form.submit) }}
                 </div>
             </form>
         </div>

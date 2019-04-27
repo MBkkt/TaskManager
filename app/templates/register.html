@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% from '/macros/input.html' import input_text %}
+{% from '/macros/error.html' import print_error %}
 
 
 {% block content %}
@@ -24,10 +25,12 @@
                 <div class="uk-margin">
                     {{ form.type.label }}
                     {{ form.type(class_='uk-input') }}
+                    {{ print_error(form.type) }}
                 </div>
 
                 <div class="uk-margin">
                     {{ form.submit(class_='uk-button uk-button-primary tm-form') }}
+                    {{ print_error(form.submit) }}
                 </div>
 
             </form>
