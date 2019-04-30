@@ -1,0 +1,41 @@
+[
+	{
+		"login":"Q",
+		"email":"QQ",
+		"type":1,
+		"first_name":"QQ",
+		"last_name": "Q"
+	},
+	{
+		"login":"WW",
+		"email":"WW",
+		"password":"W",
+		"type":1,
+		"first_name":"W",
+		"last_name": "W"
+	},
+	{
+		"login":"E",
+		"email":"E",
+		"password":"E",
+		"type":1,
+		"first_name":"E",
+		"last_name": "E",
+		"delete": true
+	},
+	{
+		"login":"Q",
+		"email":"Q",
+		"password":"Q",
+		"type":0,
+		"first_name":"Q",
+		"last_name": "Q"
+	},
+	{
+		"login":"Q",
+		"password":"Q",
+		"type":0,
+		"first_name":"Q",
+		"last_name": "Q"
+	}
+]

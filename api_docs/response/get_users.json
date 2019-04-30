@@ -1,0 +1,69 @@
+[
+    {
+        "data": {
+            "assign_tasks": [],
+            "email": "Q",
+            "first_name": "Q",
+            "last_name": "Q",
+            "login": "Q",
+            "tasks": [],
+            "type": 0
+        },
+        "message": "Success",
+        "result": true
+    },
+    {
+        "data": {
+            "assign_tasks": [],
+            "email": "W",
+            "first_name": "W",
+            "last_name": "W",
+            "login": "W",
+            "tasks": [],
+            "type": 1
+        },
+        "message": "Success",
+        "result": true
+    },
+    {
+        "data": {
+            "assign_tasks": [],
+            "email": "E",
+            "first_name": "E",
+            "last_name": "E",
+            "login": "E",
+            "tasks": [],
+            "type": 1
+        },
+        "message": "Success",
+        "result": true
+    },
+    {
+        "data": {
+            "email": "Q",
+            "login": "Q"
+        },
+        "message": {
+            "data": {
+                "email": "Q",
+                "login": "Q"
+            },
+            "message": "Wrong password",
+            "result": false
+        },
+        "result": false
+    },
+    {
+        "data": {
+            "login": "Q"
+        },
+        "message": {
+            "data": {
+                "login": "Q"
+            },
+            "message": "Wrong password",
+            "result": false
+        },
+        "result": false
+    }
+]

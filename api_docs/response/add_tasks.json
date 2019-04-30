@@ -1,0 +1,51 @@
+[
+    {
+        "data": {
+            "author": "Kek",
+            "description": "V",
+            "title": "A",
+            "users": [
+                "Kek",
+                "Kek"
+            ]
+        },
+        "message": "Task successfully added",
+        "result": true
+    },
+    {
+        "data": {
+            "author": "Kek",
+            "description": "V",
+            "title": "B",
+            "users": [
+                "Kek"
+            ]
+        },
+        "message": "Task successfully added",
+        "result": true
+    },
+    {
+        "data": {
+            "author": "Kek",
+            "description": "V",
+            "title": "B",
+            "users": [
+                "Kek"
+            ]
+        },
+        "message": "Task exist",
+        "result": false
+    },
+    {
+        "data": {
+            "author": "Kek",
+            "description": "V",
+            "title": "B",
+            "users": [
+                "Kek"
+            ]
+        },
+        "message": "Task exist",
+        "result": false
+    }
+]

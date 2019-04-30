@@ -1,0 +1,61 @@
+[
+    {
+        "data": {
+            "email": "Q",
+            "first_name": "Q",
+            "last_name": "Q",
+            "login": "Q",
+            "password": "Q",
+            "type": 0
+        },
+        "message": "User exist",
+        "result": false
+    },
+    {
+        "data": {
+            "email": "W",
+            "first_name": "W",
+            "last_name": "W",
+            "login": "W",
+            "password": "W",
+            "type": 1
+        },
+        "message": "User exist",
+        "result": false
+    },
+    {
+        "data": {
+            "email": "E",
+            "first_name": "E",
+            "last_name": "E",
+            "login": "E",
+            "password": "E",
+            "type": 1
+        },
+        "message": "User exist",
+        "result": false
+    },
+    {
+        "data": {
+            "email": "Q",
+            "first_name": "Q",
+            "last_name": "Q",
+            "login": "Q",
+            "password": "Q",
+            "type": 0
+        },
+        "message": "User exist",
+        "result": false
+    },
+    {
+        "data": {
+            "first_name": "Q",
+            "last_name": "Q",
+            "login": "Q",
+            "password": "Q",
+            "type": 0
+        },
+        "message": "Few fields are not exist",
+        "result": false
+    }
+]

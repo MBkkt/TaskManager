@@ -1,0 +1,61 @@
+[
+    {
+        "data": {
+            "email": "QQ",
+            "first_name": "QQ",
+            "last_name": "Q",
+            "login": "Q",
+            "type": 1
+        },
+        "message": "Wrong password",
+        "result": false
+    },
+    {
+        "data": {
+            "email": "WW",
+            "first_name": "W",
+            "last_name": "W",
+            "login": "WW",
+            "password": "W",
+            "type": 1
+        },
+        "message": "Account no exist",
+        "result": false
+    },
+    {
+        "data": {
+            "delete": true,
+            "email": "E",
+            "first_name": "E",
+            "last_name": "E",
+            "login": "E",
+            "password": "E",
+            "type": 1
+        },
+        "message": "User successfully edited",
+        "result": true
+    },
+    {
+        "data": {
+            "email": "Q",
+            "first_name": "Q",
+            "last_name": "Q",
+            "login": "Q",
+            "password": "Q",
+            "type": 0
+        },
+        "message": "User successfully edited",
+        "result": true
+    },
+    {
+        "data": {
+            "first_name": "Q",
+            "last_name": "Q",
+            "login": "Q",
+            "password": "Q",
+            "type": 0
+        },
+        "message": "User successfully edited",
+        "result": true
+    }
+]

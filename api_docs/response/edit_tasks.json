@@ -1,0 +1,51 @@
+[
+    {
+        "data": {
+            "author": "Q",
+            "description": "V",
+            "title": "A",
+            "users": [
+                "Q"
+            ]
+        },
+        "message": "Task successfully edited",
+        "result": true
+    },
+    {
+        "data": {
+            "author": "Q",
+            "delete": true,
+            "description": "V",
+            "title": "B",
+            "users": [
+                "Q"
+            ]
+        },
+        "message": "Task successfully edited",
+        "result": true
+    },
+    {
+        "data": {
+            "author": "Q",
+            "description": "V",
+            "title": "B",
+            "users": [
+                "Q"
+            ]
+        },
+        "message": "Task no exist",
+        "result": false
+    },
+    {
+        "data": {
+            "author": "Q",
+            "description": "V",
+            "title": "BDDDD",
+            "users": [
+                "Q"
+            ]
+        },
+        "message": "Task no exist",
+        "result": false
+    }
+]
