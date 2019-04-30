@@ -56,7 +56,7 @@ def login():
         user = User.query.filter_by(login=form.login.data).first()
         next_page = url_for('login')
         if user is None:
-            flash('This login does not exist', 'danger')
+            flash('Account does not exist', 'danger')
         elif not user.check_password(form.password.data):
             flash('Wrong password', 'danger')
         else:
@@ -95,14 +95,14 @@ def assigned_tasks():
     )
 
 
-def task_for_performer(task):
+def task_for_performer(task_):
     form = EditTaskForPerformer(request.form)
     if request.method == 'POST' and form.validate_on_submit():
-        task.edit_status(form.status.data)
+        task_.edit_status(form.status.data)
         flash('Task status is edited', 'primary')
         return redirect(url_for('tasks'))
     return render_template(
-        'add_task.html', title='Edit task', task=task,
+        'add_task.html', title='Edit task', task=task_,
         current_user=current_user,
         form=form
     )
@@ -139,13 +139,13 @@ def profile(user_id):
     )
 
 
-def task_for_owner(task):
+def task_for_owner(task_):
     form = EditTaskForOwner(request.form)
     form.users_id.choices = [
         (user.id, user.login) for user in User.query.all()
     ]
     if form.validate_on_submit():
-        task.edit(task, {
+        task_.edit(task_, {
             'delete': form.delete.data,
             'title': form.title.data,
             'description': form.description.data,
@@ -155,14 +155,14 @@ def task_for_owner(task):
         flash('Task is edited', 'primary')
         return redirect(url_for('assigned_tasks'))
     elif request.method == 'GET':
-        form.title.data = task.title
-        form.description.data = task.description
-        form.status.data = task.status
-        form.users_id.data = [user.id for user in task.users]
+        form.title.data = task_.title
+        form.description.data = task_.description
+        form.status.data = task_.status
+        form.users_id.data = [user.id for user in task_.users]
     else:
         flash('Task does not correct', 'error')
     return render_template(
-        'add_task.html', title='Edit task', task=task,
+        'add_task.html', title='Edit task', task=task_,
         current_user=current_user,
         form=form
     )
@@ -171,11 +171,11 @@ def task_for_owner(task):
 @app.route('/task/<int:task_id>', methods=('GET', 'POST'))
 @login_required
 def task(task_id):
-    task = Task.query.filter_by(id=int(task_id)).first()
-    if current_user.id == task.author_id:
-        return task_for_owner(task)
+    task_ = Task.query.filter_by(id=task_id).first()
+    if current_user.id == task_.author_id:
+        return task_for_owner(task_)
     else:
-        return task_for_performer(task)
+        return task_for_performer(task_)
 
 
 @app.route('/add_task', methods=('GET', 'POST'))
@@ -186,9 +186,9 @@ def add_task():
     form.users_id.choices = [
         (user.id, user.login) for user in User.query.all()
     ]
-    task = {'author_id': current_user.id}
+    task_ = {'author_id': current_user.id}
     if form.validate_on_submit():
-        task = Task.create({
+        task_ = Task.create({
             'title': form.title.data,
             'description': form.description.data,
             'author_id': current_user.id,
@@ -197,6 +197,6 @@ def add_task():
         flash('Task successfully assigned', 'primary')
 
     return render_template(
-        'add_task.html', title='Add task', form=form, task=task,
+        'add_task.html', title='Add task', form=form, task=task_,
         current_user=current_user
     )
