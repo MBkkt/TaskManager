@@ -14,7 +14,8 @@ Using Python 3 create a back-end and API for the task board application.
 
 ### Optional (nice to have) features:
 
-- [ ] Additional task board settings (one can think of)
+- [x] Additional task board settings (one can think of)
+>Two users type, Api performs many queries in one request, for example: add_user**s**
 
 - [x] Task implementation time tracking (based on user actions "start" and "pause")
 >DONE and other status
@@ -25,4 +26,4 @@ Using Python 3 create a back-end and API for the task board application.
 
 - [x] Simple web interface 
 
-- [ ] API
+- [x] API
