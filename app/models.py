@@ -1,7 +1,7 @@
-from app import db, login
+from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from app import db, login
 
 users_tasks = db.Table(
     'users_tasks',
@@ -29,6 +29,19 @@ class User(UserMixin, db.Model):
         foreign_keys='Task.author_id'
     )
 
+    def get_json(self):
+        return {'result': True,
+                'message': 'Success',
+                'data': {
+                    'login': self.login,
+                    'email': self.email,
+                    'first_name': self.first_name,
+                    'last_name': self.last_name,
+                    'type': self.type,
+                    'assign_tasks': [task.title for task in self.assign_tasks],
+                    'tasks': [task.title for task in self.tasks]
+                }}
+
     def __repr__(self):
         return f'<User {self.login}>'
 
@@ -36,31 +49,31 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
 
     @staticmethod
-    def create(form):
+    def create(source):
         user = User(
-            login=form.login.data,
-            email=form.email.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            type=int(form.type.data),
+            login=source['login'],
+            email=source['email'],
+            first_name=source['first_name'],
+            last_name=source['last_name'],
+            type=source['type'],
         )
-        user.set_password(form.password.data)
+        user.set_password(source['password'])
         db.session.add(user)
         db.session.commit()
         return user
 
     @staticmethod
-    def edit(user, form):
-        if form.__dict__.get('delete', False) and form.delete.data:
+    def edit(user, source):
+        if source.get('delete', False):
             for task in user.assign_tasks:
                 db.session.delete(task)
             db.session.delete(user)
         else:
-            user.login = form.login.data
-            user.email = form.email.data
-            user.first_name = form.first_name.data
-            user.last_name = form.last_name.data
-            user.type = form.type.data
+            user.login = source.get('login', user.login)
+            user.email = source.get('email', user.email)
+            user.first_name = source.get('first_name', user.first_name)
+            user.last_name = source.get('last_name', user.last_name)
+            user.type = source.get('type', user.type)
         db.session.commit()
 
     def check_password(self, password):
@@ -104,46 +117,72 @@ class Task(db.Model):
     def __repr__(self):
         return f'<Task {self.title}>'
 
+    def get_json(self):
+        return {'result': True,
+                'message': 'Success',
+                'data': {
+                    'title': self.title,
+                    'description': self.description,
+                    'author': User.query.get(self.author_id).login,
+                    'status': self.status,
+                    'users': [user.login for user in self.users],
+                }}
+
     @staticmethod
-    def create(form, author_id):
+    def create(source):
+        author_id = source.get('author_id') or User.query.filter_by(
+            login=source.get('author', '')).first().id
         task = Task(
-            title=form.title.data,
-            description=form.description.data,
+            title=source['title'],
+            description=source['description'],
             author_id=author_id,
             started=datetime.utcnow(),
         )
-        for user_id in form.users_id.data:
+        for user_id in source.get('users_id', ''):
             task.users.append(User.query.get(user_id))
+        for user_login in source.get('users', ''):
+            task.users.append(User.query.filter_by(login=user_login).first())
 
         db.session.add(task)
         db.session.commit()
         return task
 
     @staticmethod
-    def edit(task, form):
-        if form.__dict__.get('delete', False) and form.delete.data:
+    def edit(task, source):
+        if source.get('delete', False):
             db.session.delete(task)
         else:
-            task.title = form.title.data
-            task.description = form.description.data
+            task.title = source.get('title', task.title)
+            task.description = source.get('description', task.description)
 
-            if task.status != 3 == int(form.status.data):
+            if task.status != 3 == source.get('status', 0):
                 task.finished = datetime.utcnow()
-            task.status = int(form.status.data)
+            task.status = source.get('status', task.status)
+            if source.get('users_id') is not None:
+                users_id = {user.id for user in task.users}
+                for user_id in source.get('users_id', ''):
+                    if user_id not in users_id:
+                        task.users.append(User.query.get(user_id))
 
-            users_id = {user.id for user in task.users}
-            for user_id in form.users_id.data:
-                if user_id not in users_id:
-                    task.users.append(User.query.get(user_id))
+                new_users_id = set(source.get('users_id', users_id))
+                for user in task.users:
+                    if user.id not in new_users_id:
+                        task.users.remove(user)
+            else:
+                users_login = {user.login for user in task.users}
+                for user_login in source.get('users', ''):
+                    if user_login not in users_login:
+                        task.users.append(
+                            User.query.filter_by(login=user_login).first())
 
-            new_users_id = set(form.users_id.data)
-            for user in task.users:
-                if user.id not in new_users_id:
-                    task.users.remove(user)
+                new_users_login = set(source.get('users_login', users_login))
+                for user in task.users:
+                    if user.login not in new_users_login:
+                        task.users.remove(user)
         db.session.commit()
 
-    def edit_status(self, form):
-        self.status = int(form.status.data)
+    def edit_status(self, status):
+        self.status = status
         if self.status == 3:
             self.finished = datetime.utcnow()
         db.session.commit()

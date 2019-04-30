@@ -13,4 +13,4 @@ login.login_view = 'login'
 login.login_message_category = 'danger'
 login.login_message = 'Authorization required to access this page'
 
-from app import routes, models, errors
+from app import models, errors, routes, api_routes
