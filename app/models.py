@@ -1,7 +1,7 @@
-from app import db, login
+from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from app import db, login
 
 users_tasks = db.Table(
     'users_tasks',
@@ -28,6 +28,19 @@ class User(UserMixin, db.Model):
         lazy='dynamic',
         foreign_keys='Task.author_id'
     )
+
+    def get_json(self):
+        return {'result': True,
+                'message': 'Success',
+                'data': {
+                    'login': self.login,
+                    'email': self.email,
+                    'first_name': self.first_name,
+                    'last_name': self.last_name,
+                    'type': self.type,
+                    'assign_tasks': [task.title for task in self.assign_tasks],
+                    'tasks': [task.title for task in self.tasks]
+                }}
 
     def __repr__(self):
         return f'<User {self.login}>'
@@ -56,11 +69,11 @@ class User(UserMixin, db.Model):
                 db.session.delete(task)
             db.session.delete(user)
         else:
-            user.login = source['login']
-            user.email = source['email']
-            user.first_name = source['first_name']
-            user.last_name = source['last_name']
-            user.type = source['type']
+            user.login = source.get('login', user.login)
+            user.email = source.get('email', user.email)
+            user.first_name = source.get('first_name', user.first_name)
+            user.last_name = source.get('last_name', user.last_name)
+            user.type = source.get('type', user.type)
         db.session.commit()
 
     def check_password(self, password):
@@ -104,16 +117,31 @@ class Task(db.Model):
     def __repr__(self):
         return f'<Task {self.title}>'
 
+    def get_json(self):
+        return {'result': True,
+                'message': 'Success',
+                'data': {
+                    'title': self.title,
+                    'description': self.description,
+                    'author': User.query.get(self.author_id).login,
+                    'status': self.status,
+                    'users': [user.login for user in self.users],
+                }}
+
     @staticmethod
     def create(source):
+        author_id = source.get('author_id') or User.query.filter_by(
+            login=source.get('author', '')).first().id
         task = Task(
             title=source['title'],
             description=source['description'],
-            author_id=source['author_id'],
+            author_id=author_id,
             started=datetime.utcnow(),
         )
-        for user_id in source['users_id']:
+        for user_id in source.get('users_id', ''):
             task.users.append(User.query.get(user_id))
+        for user_login in source.get('users', ''):
+            task.users.append(User.query.filter_by(login=user_login).first())
 
         db.session.add(task)
         db.session.commit()
@@ -124,22 +152,33 @@ class Task(db.Model):
         if source.get('delete', False):
             db.session.delete(task)
         else:
-            task.title = source['title']
-            task.description = source['description']
+            task.title = source.get('title', task.title)
+            task.description = source.get('description', task.description)
 
-            if task.status != 3 == source['status']:
+            if task.status != 3 == source.get('status', 0):
                 task.finished = datetime.utcnow()
-            task.status = source['status']
+            task.status = source.get('status', task.status)
+            if source.get('users_id') is not None:
+                users_id = {user.id for user in task.users}
+                for user_id in source.get('users_id', ''):
+                    if user_id not in users_id:
+                        task.users.append(User.query.get(user_id))
 
-            users_id = {user.id for user in task.users}
-            for user_id in source['users_id']:
-                if user_id not in users_id:
-                    task.users.append(User.query.get(user_id))
+                new_users_id = set(source.get('users_id', users_id))
+                for user in task.users:
+                    if user.id not in new_users_id:
+                        task.users.remove(user)
+            else:
+                users_login = {user.login for user in task.users}
+                for user_login in source.get('users', ''):
+                    if user_login not in users_login:
+                        task.users.append(
+                            User.query.filter_by(login=user_login).first())
 
-            new_users_id = set(source['users_id'])
-            for user in task.users:
-                if user.id not in new_users_id:
-                    task.users.remove(user)
+                new_users_login = set(source.get('users_login', users_login))
+                for user in task.users:
+                    if user.login not in new_users_login:
+                        task.users.remove(user)
         db.session.commit()
 
     def edit_status(self, status):
