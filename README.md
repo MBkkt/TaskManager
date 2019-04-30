@@ -24,4 +24,4 @@ Using Python 3 create a back-end and API for the task board application.
 
 - [ ] Tests
 
-- [x] Simple web interface API
+- [x] Simple web interface working with the API
