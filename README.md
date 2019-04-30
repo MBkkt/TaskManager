@@ -18,7 +18,7 @@ Using Python 3 create a back-end and API for the task board application.
 >Two users type, Api performs many queries in one request, for example: add_user**s**
 
 - [x] Task implementation time tracking (based on user actions "start" and "pause")
->DONE and other status
+>DONE is pause, other statuses are start
 
 - [x] Deleting tasks and users
 
