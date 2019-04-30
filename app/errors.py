@@ -1,4 +1,5 @@
-from flask import render_template
+from flask import render_template, jsonify
+from werkzeug.http import HTTP_STATUS_CODES
 from app import app, db
 
 
@@ -11,3 +12,12 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
+
+
+def bad_request(message, status_code=400):
+    payload = {'error': HTTP_STATUS_CODES.get(status_code, 'Unknown error')}
+    if message:
+        payload['message'] = message
+    response = jsonify(payload)
+    response.status_code = status_code
+    return response
