@@ -36,31 +36,31 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
 
     @staticmethod
-    def create(form):
+    def create(source):
         user = User(
-            login=form.login.data,
-            email=form.email.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
-            type=int(form.type.data),
+            login=source['login'],
+            email=source['email'],
+            first_name=source['first_name'],
+            last_name=source['last_name'],
+            type=source['type'],
         )
-        user.set_password(form.password.data)
+        user.set_password(source['password'])
         db.session.add(user)
         db.session.commit()
         return user
 
     @staticmethod
-    def edit(user, form):
-        if form.__dict__.get('delete', False) and form.delete.data:
+    def edit(user, source):
+        if source.get('delete', False):
             for task in user.assign_tasks:
                 db.session.delete(task)
             db.session.delete(user)
         else:
-            user.login = form.login.data
-            user.email = form.email.data
-            user.first_name = form.first_name.data
-            user.last_name = form.last_name.data
-            user.type = form.type.data
+            user.login = source['login']
+            user.email = source['email']
+            user.first_name = source['first_name']
+            user.last_name = source['last_name']
+            user.type = source['type']
         db.session.commit()
 
     def check_password(self, password):
@@ -105,14 +105,14 @@ class Task(db.Model):
         return f'<Task {self.title}>'
 
     @staticmethod
-    def create(form, author_id):
+    def create(source):
         task = Task(
-            title=form.title.data,
-            description=form.description.data,
-            author_id=author_id,
+            title=source['title'],
+            description=source['description'],
+            author_id=source['author_id'],
             started=datetime.utcnow(),
         )
-        for user_id in form.users_id.data:
+        for user_id in source['users_id']:
             task.users.append(User.query.get(user_id))
 
         db.session.add(task)
@@ -120,30 +120,30 @@ class Task(db.Model):
         return task
 
     @staticmethod
-    def edit(task, form):
-        if form.__dict__.get('delete', False) and form.delete.data:
+    def edit(task, source):
+        if source.get('delete', False):
             db.session.delete(task)
         else:
-            task.title = form.title.data
-            task.description = form.description.data
+            task.title = source['title']
+            task.description = source['description']
 
-            if task.status != 3 == int(form.status.data):
+            if task.status != 3 == source['status']:
                 task.finished = datetime.utcnow()
-            task.status = int(form.status.data)
+            task.status = source['status']
 
             users_id = {user.id for user in task.users}
-            for user_id in form.users_id.data:
+            for user_id in source['users_id']:
                 if user_id not in users_id:
                     task.users.append(User.query.get(user_id))
 
-            new_users_id = set(form.users_id.data)
+            new_users_id = set(source['users_id'])
             for user in task.users:
                 if user.id not in new_users_id:
                     task.users.remove(user)
         db.session.commit()
 
-    def edit_status(self, form):
-        self.status = int(form.status.data)
+    def edit_status(self, status):
+        self.status = status
         if self.status == 3:
             self.finished = datetime.utcnow()
         db.session.commit()

@@ -34,7 +34,14 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        login_user(User.create(form=form), remember=True)
+        login_user(User.create(source={
+            'login': form.login.data,
+            'email': form.email.data,
+            'first_name': form.first_name.data,
+            'last_name': form.last_name.data,
+            'type': form.type.data,
+            'password': form.password.data,
+        }), remember=True)
         next_page = request.args.get('next') or url_for('index')
         return redirect(next_page)
     return render_template('register.html', title='Register', form=form)
@@ -69,11 +76,11 @@ def logout():
 @app.route('/tasks')
 @login_required
 def tasks():
-    tasks = current_user.tasks
-    tasks_len = tasks.count() if tasks else 0
+    temp = current_user.tasks
+    tasks_len = temp.count() if temp else 0
     return render_template(
         'tasks.html', title='Tasks', current_user=current_user,
-        tasks=tasks, tasks_len=tasks_len
+        tasks=temp, tasks_len=tasks_len
     )
 
 
@@ -91,7 +98,7 @@ def assigned_tasks():
 def task_for_performer(task):
     form = EditTaskForPerformer(request.form)
     if request.method == 'POST' and form.validate_on_submit():
-        task.edit_status(form)
+        task.edit_status(form.status.data)
         flash('Task status is edited', 'primary')
         return redirect(url_for('tasks'))
     return render_template(
@@ -107,8 +114,15 @@ def profile(user_id):
     user = User.query.filter_by(id=int(user_id)).first()
     form = ProfileForm()
     if form.validate_on_submit():
-        User.edit(user, form)
-        if form.__dict__.get('delete', False) and form.delete.data:
+        User.edit(user, {
+            'delete': form.delete.data,
+            'login': form.login.data,
+            'email': form.email.data,
+            'first_name': form.first_name.data,
+            'last_name': form.last_name.data,
+            'type': form.type.data,
+        })
+        if form.delete.data:
             flash('Profile is deleted', 'primary')
         else:
             flash('Profile is edited', 'primary')
@@ -131,7 +145,13 @@ def task_for_owner(task):
         (user.id, user.login) for user in User.query.all()
     ]
     if form.validate_on_submit():
-        task.edit(task, form)
+        task.edit(task, {
+            'delete': form.delete.data,
+            'title': form.title.data,
+            'description': form.description.data,
+            'status': form.status.data,
+            'users_id': form.users_id.data,
+        })
         flash('Task is edited', 'primary')
         return redirect(url_for('assigned_tasks'))
     elif request.method == 'GET':
@@ -166,11 +186,16 @@ def add_task():
     form.users_id.choices = [
         (user.id, user.login) for user in User.query.all()
     ]
+    task = {'author_id': current_user.id}
     if form.validate_on_submit():
-        task = Task.create(form, current_user.id)
-        flash('Task is adding', 'primary')
-    else:
-        task = {'author_id': current_user.id}
+        task = Task.create({
+            'title': form.title.data,
+            'description': form.description.data,
+            'author_id': current_user.id,
+            'users_id': form.users_id.data,
+        })
+        flash('Task successfully assigned', 'primary')
+
     return render_template(
         'add_task.html', title='Add task', form=form, task=task,
         current_user=current_user
