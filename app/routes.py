@@ -1,3 +1,4 @@
+from functools import wraps
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app
@@ -6,7 +7,6 @@ from app.forms import (
     LoginForm, RegistrationForm, AddTask,
     EditTaskForPerformer, EditTaskForOwner, ProfileForm
 )
-from functools import wraps
 
 
 def admin_required(func):
@@ -95,19 +95,6 @@ def assigned_tasks():
     )
 
 
-def task_for_performer(task_):
-    form = EditTaskForPerformer(request.form)
-    if request.method == 'POST' and form.validate_on_submit():
-        task_.edit_status(form.status.data)
-        flash('Task status is edited', 'primary')
-        return redirect(url_for('tasks'))
-    return render_template(
-        'add_task.html', title='Edit task', task=task_,
-        current_user=current_user,
-        form=form
-    )
-
-
 @app.route('/profile/<int:user_id>', methods=('GET', 'POST'))
 @login_required
 def profile(user_id):
@@ -163,6 +150,19 @@ def task_for_owner(task_):
         form.users_id.data = [user.id for user in task_.users]
     else:
         flash('Task does not correct', 'error')
+    return render_template(
+        'add_task.html', title='Edit task', task=task_,
+        current_user=current_user,
+        form=form
+    )
+
+
+def task_for_performer(task_):
+    form = EditTaskForPerformer(request.form)
+    if request.method == 'POST' and form.validate_on_submit():
+        task_.edit_status(form.status.data)
+        flash('Task status is edited', 'primary')
+        return redirect(url_for('tasks'))
     return render_template(
         'add_task.html', title='Edit task', task=task_,
         current_user=current_user,
