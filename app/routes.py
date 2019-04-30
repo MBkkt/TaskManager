@@ -111,7 +111,9 @@ def task_for_performer(task_):
 @app.route('/profile/<int:user_id>', methods=('GET', 'POST'))
 @login_required
 def profile(user_id):
-    user = User.query.filter_by(id=int(user_id)).first()
+    if current_user.id != user_id:
+        return redirect(request.args.get('next') or url_for('index'))
+    user = User.query.filter_by(id=user_id).first()
     form = ProfileForm()
     if form.validate_on_submit():
         User.edit(user, {
