@@ -14,8 +14,7 @@ def admin_required(func):
     def func_new(*args, **kwargs):
         if current_user.type == 0:
             return redirect(url_for('index'))
-        else:
-            return func(*args, **kwargs)
+        return func(*args, **kwargs)
 
     return func_new
 
@@ -116,7 +115,7 @@ def profile(user_id):
         else:
             flash('Profile is edited', 'primary')
         return redirect(url_for('login'))
-    elif request.method == 'GET':
+    if request.method == 'GET':
         form.login.data = user.login
         form.email.data = user.email
         form.first_name.data = user.first_name
@@ -143,7 +142,7 @@ def task_for_owner(task_):
         })
         flash('Task is edited', 'primary')
         return redirect(url_for('assigned_tasks'))
-    elif request.method == 'GET':
+    if request.method == 'GET':
         form.title.data = task_.title
         form.description.data = task_.description
         form.status.data = task_.status
@@ -176,8 +175,7 @@ def task(task_id):
     task_ = Task.query.filter_by(id=task_id).first()
     if current_user.id == task_.author_id:
         return task_for_owner(task_)
-    else:
-        return task_for_performer(task_)
+    return task_for_performer(task_)
 
 
 @app.route('/add_task', methods=('GET', 'POST'))

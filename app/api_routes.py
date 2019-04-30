@@ -25,7 +25,7 @@ def check_fields(source, field_names):
             'data': source,
         }
 
-    elif any(not field if field != 0 else False for field in source.values()):
+    if any(not field if field != 0 else False for field in source.values()):
         return {
             'result': False,
             'message': 'Few fields are empty',
@@ -43,14 +43,13 @@ def check_user_exist(source):
             'data': source,
         }
 
-    elif not user.check_password(source.get('password', '')):
+    if not user.check_password(source.get('password', '')):
         return False, {
             'result': False,
             'message': 'Wrong password',
             'data': source,
         }
-    else:
-        return True, user
+    return True, user
 
 
 def check_task_exist(source):
@@ -61,17 +60,15 @@ def check_task_exist(source):
             'message': 'Task no exist',
             'data': source,
         }
-    else:
-        return True, task
+    return True, task
 
 
 @app.route('/api')
-@jsonify_
-def api(data):
-    return {
+def api():
+    return jsonify({
         'api_function': ('get_users', 'add_users', 'edit_users',
                          'get_tasks', 'add_tasks', 'edit_tasks')
-    }
+    })
 
 
 @app.route('/api/add_users', methods=('POST',))
@@ -149,7 +146,7 @@ def add_tasks(data):
             response.append(error_msg)
             continue
 
-        is_exist, task = check_task_exist(task_data)
+        is_exist, task_or_msg = check_task_exist(task_data)
         if is_exist:
             response.append({
                 'result': False,

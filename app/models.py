@@ -190,18 +190,16 @@ class Task(db.Model):
     def timedelta(self):
         if self.finished and self.status == 3:
             return self.finished - self.started
-        else:
-            return datetime.utcnow() - self.started
+        return datetime.utcnow() - self.started
 
     def get_text_status(self):
         if self.status == 0:
             return 'TO DO'
-        elif self.status == 1:
+        if self.status == 1:
             return 'IN PROGRESS'
-        elif self.status == 2:
+        if self.status == 2:
             return 'ON REVIEW'
-        else:
-            return 'DONE'
+        return 'DONE'
 
     def get_author(self):
         return User.query.get(self.author_id)
