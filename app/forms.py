@@ -81,6 +81,6 @@ class AddTask(FlaskForm):
     submit = SubmitField('Add')
 
     def validate_title(self, title):
-        task = Task.query.filter_by(title=self.title.data).first()
+        task = Task.query.filter_by(title=title.data).first()
         if task is not None:
             raise ValidationError('Enter another title')
